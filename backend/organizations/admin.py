@@ -9,9 +9,64 @@ from .models import(
 
 
 # User
+@admin.register(User)
+class UserAdmin(DjangoUserAdmin):
+    list_display = (
+        "email", "first_name",
+        "last_name",
+        "phone", "date_joined",
+        "updated_at",
+    ) 
+    list_filter = (
+        "is_active", "is_staff", 
+        "is_superuser", "date_joined",
+    )
+    search_fields = (
+        "email", "first_name",
+        "last_name", "phone",
+    )
+    ordering = ("last_name", "-date_joined")
 
+    fieldsets = (
+        (None, { 
+            "fields": ("email", "password")}),
+        ("Personal info", {
+            "fields": (
+                "first_name",
+                "last_name", "phone",
+                )
+        }),
+        ("Permission", {
+            "fields": ( 
+                "is_active", "is_staff",
+                "is_superuser", "groups",
+                "user_permissions",)
+        }),
+        ("Important dates", {
+            "fields": (
+                "last_login", "date_joined",
+                "updated_at",
+                )
+        })
+    )
+    readonly_fields = (
+        "date_joined", "last_login",
+        "updated_at",
+        )
 
+    add_fieldsets = (
+        (None, {
+            "classes": ("wide",),
+            "fields": (
+                "email", "first_name",
+                "last_name", "phone",
+                "password1", "password2",
+                "is_staff", "is_active",
+            ),
+        }),
+    )
 
+# Main
 @admin.register(Organization)
 class OrganizationAdmin(admin.ModelAdmin):
     list_display = (

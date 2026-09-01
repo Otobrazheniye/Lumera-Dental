@@ -45,15 +45,21 @@ class MembershipSerializer(serializers.ModelSerializer):
             )
         return value
 
-    def validate(self, attrs):
-        clinic = attrs.get("clinic")
-        user = attrs.get("user")
 
-        if Membership.objects.filter(
-            clinic=clinic,
-            user=user,
-        ).exists():
-            raise serializers.ValidationError(
-                "This user is already a member of this clinic."
-            )
+    def validate(self, attrs):
+        clinic = attrs.get("clinic", self.instance.clinic if self.instance else None)
+        user = attrs.get("user", self.instance.user if self.instance else None)
+
+        memberships = Membership.objects.filter(
+            clinic=clinic, user=user,
+        )
+
+        if self.instance:
+            memberships = memberships.exclude(
+            pk=self.instance.pk
+        )
+
+        if memberships.exists():
+            raise serializers.ValidationError("This user is already a member of this clinic.")
+
         return attrs

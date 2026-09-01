@@ -32,7 +32,7 @@ class OrganizationViewSet(ModelViewSet):
 class MembershipViewSet(
     mixins.ListModelMixin, mixins.RetrieveModelMixin, 
     mixins.CreateModelMixin, mixins.DestroyModelMixin, 
-    viewsets.GenericViewSet,):
+    viewsets.GenericViewSet, mixins.UpdateModelMixin,):
 
     queryset = Membership.objects.select_related("clinic", "user")
     serializer_class = MembershipSerializer

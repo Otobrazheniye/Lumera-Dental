@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from .models import Organization
+from .models import (
+    Organization, Membership
+        ) 
 
 
 class OrganizationSerializer(serializers.ModelSerializer):
@@ -25,3 +27,33 @@ class OrganizationSerializer(serializers.ModelSerializer):
                 )
 
             return value
+
+class MembershipSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Membership
+        fields = (
+            "id",
+            "clinic", "user",
+            "role", "created_at",
+        )
+        read_only_fields = ("id", "created_at")
+
+    def validate_clinic(self, value):
+        if not value.is_active:
+            raise serializers.ValidationError(
+                "Cannot add a member to an inactive clinic."
+            )
+        return value
+
+    def validate(self, attrs):
+        clinic = attrs.get("clinic")
+        user = attrs.get("user")
+
+        if Membership.objects.filter(
+            clinic=clinic,
+            user=user,
+        ).exists():
+            raise serializers.ValidationError(
+                "This user is already a member of this clinic."
+            )
+        return attrs

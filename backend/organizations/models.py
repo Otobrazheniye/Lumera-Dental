@@ -43,10 +43,18 @@ class User(AbstractUser):
     username = None
 
     email = models.EmailField(unique=True)
-    full_name = models.CharField(max_length=150, blank=True)
-    company = models.CharField(max_length=150, blank=True)
+    first_name = models.CharField(max_length=40,)
+    last_name = models.CharField(max_length=40,)
+    phone = models.CharField(max_length=20, blank=True)
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    # is_active = models.BooleanField(default=True) - already in AbstractUser
+    # is_staff = models.BooleanField(default=False) - already in AbstractUser
+
+    avatar = models.ImageField(upload_to="avatars/", blank=True, null=True,)
+    # pip install Pillow
+
+    date_joined = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

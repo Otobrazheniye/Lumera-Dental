@@ -66,7 +66,7 @@ class User(AbstractUser):
 
 
 
-# Dent
+# Main
 class Organization(models.Model):
     name = models.CharField(max_length=150)
     slug = models.SlugField(max_length=160, unique=True)

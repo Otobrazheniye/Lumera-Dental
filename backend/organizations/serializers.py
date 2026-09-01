@@ -1,13 +1,67 @@
 from rest_framework import serializers
+from django.contrib.auth import get_user_model
 from .models import (
-    User,
     Organization, Membership
         ) 
 
 
+#User
+User = get_user_model()
 
 
+class RegistrationUserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, min_length=6, style={"input_type": "password"},)
+    
+    class Meta: 
+        model = User
+        fields = (
+            "id", "email", 
+            "password", "first_name",
+            "last_name", "phone",
+            "date_joined", "updated_at",
+        )
 
+        read_only_fields = (    
+            "id",
+            "date_joined", "updated_at",
+            )
+
+    def validate_email(self, value):
+        return value.lower().strip()
+
+    def create(self, validated_data):
+        return User.objects.create_user(**validated_data)
+    
+
+class LoginUserSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password =  serializers.CharField(write_only=True, min_length=6)
+
+    def validate(self, attrs):
+        email = attrs.get("email")
+        password = attrs.get("password")
+        # Улучшить через login flow.
+
+        return attrs
+
+
+class MeUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "id", "email", 
+            "first_name", "last_name", 
+            "phone", "date_joined", 
+        )
+        
+        read_only_fields = ("id", "date_joined")
+
+
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField()
+
+
+# Main
 class OrganizationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Organization
@@ -22,15 +76,15 @@ class OrganizationSerializer(serializers.ModelSerializer):
         )
 
 
-        def validate_name(self, value):
-            value = value.strip()
+    def validate_name(self, value):
+        value = value.strip()
 
-            if not value:
-                raise serializers.ValidationError(
-                    "Organization name cannot be empty."
-                )
+        if not value:
+            raise serializers.ValidationError(
+                "Organization name cannot be empty."
+            )
 
-            return value
+        return value
 
 class MembershipSerializer(serializers.ModelSerializer):
     class Meta:
